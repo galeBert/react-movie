@@ -1,4 +1,4 @@
-import { CheckIcon, EyeIcon, Popcorn } from "lucide-react";
+import { CheckIcon, Popcorn } from "lucide-react";
 import React, { useState } from "react";
 
 import Modal from "./modal";
@@ -14,6 +14,7 @@ import {
 import useSWRMutation from "swr/mutation";
 import { addToWatchList } from "../lib/actions";
 import { Movie } from "../types/movie";
+import { cn } from "../lib/utils";
 
 export default function SmallMovieCard({
   movie,
@@ -23,12 +24,8 @@ export default function SmallMovieCard({
   revalidate?: () => void;
 }) {
   const url = "https://api.themoviedb.org/3/account/21022737/watchlist";
-  const { data, trigger } = useSWRMutation(url, addToWatchList);
+  const { trigger } = useSWRMutation(url, addToWatchList);
   const [isOpen, setIsOpen] = useState("");
-  const watchedListJSON = localStorage.getItem("watched");
-  const watchedList: Movie[] = watchedListJSON
-    ? JSON.parse(watchedListJSON)
-    : [];
 
   const onClose = () => {
     setIsOpen("");
@@ -45,7 +42,6 @@ export default function SmallMovieCard({
       });
       revalidate?.();
     } catch (error) {
-      console.log(error, "dsfnfd");
       const err = error as unknown as Error;
       if ((err.message = "Failed to fetch")) {
         const watchListJSON = localStorage.getItem("watched");
@@ -55,9 +51,36 @@ export default function SmallMovieCard({
         const offlineActionRemoved = localStorage.getItem(
           "offline-action-remove-watched"
         );
-        const offlineActionRemovedTranslated: string[] = offlineActionRemoved
-          ? JSON.parse(offlineActionRemoved)
-          : [];
+        const offlineActionRemovedTranslated: {
+          id: string;
+          watched: boolean;
+        }[] = offlineActionRemoved ? JSON.parse(offlineActionRemoved) : [];
+
+        const index = offlineActionRemovedTranslated.findIndex(
+          (prev) => prev.id === movie.id
+        );
+        if (index >= 0) {
+          localStorage.setItem(
+            "offline-action-remove-watched",
+            JSON.stringify(
+              offlineActionRemovedTranslated.map((prev) => {
+                if (prev.id === movie.id) {
+                  prev.watched = !prev.watched;
+                }
+                return prev;
+              })
+            )
+          );
+        } else {
+          localStorage.setItem(
+            "offline-action-remove-watched",
+            JSON.stringify([
+              ...offlineActionRemovedTranslated,
+              { id: movie.id, watched: !movie.watched },
+            ])
+          );
+        }
+
         if (movie.watched) {
           localStorage.setItem(
             "watched",
@@ -65,42 +88,15 @@ export default function SmallMovieCard({
               watchedListTranslated.filter((mov) => mov.id !== movie.id)
             )
           );
-          localStorage.setItem(
-            "offline-action-remove-watched",
-            JSON.stringify([...offlineActionRemovedTranslated, movie.id])
-          );
         } else {
           localStorage.setItem(
             "watched",
             JSON.stringify([...watchedListTranslated, movie])
           );
-          localStorage.setItem(
-            "offline-action-remove-watched",
-            JSON.stringify(
-              offlineActionRemovedTranslated.filter((id) => id !== movie.id)
-            )
-          );
         }
         revalidate?.();
       }
     }
-
-    // revalidate?.();
-    // const watchedListJSONData = localStorage.getItem("watched");
-    // const watchedListData: Movie[] = watchedListJSONData
-    //   ? JSON.parse(watchedListJSONData)
-    //   : [];
-    // if (isWatched) {
-    //   localStorage.setItem(
-    //     "watched",
-    //     JSON.stringify(watchedListData.filter((data) => data.id !== movie.id))
-    //   );
-    // } else {
-    //   localStorage.setItem(
-    //     "watched",
-    //     JSON.stringify([...watchedListData, { ...movie }])
-    //   );
-    // }
   };
 
   return (
@@ -118,8 +114,8 @@ export default function SmallMovieCard({
         </CardContent>
         <CardFooter className="flex flex-col justify-between h-full w-full space-y-3">
           {movie.original_title}
-          <div className="flex items-center text-sm space-x-2 justify-end">
-            <Button size="sm" onClick={handleOpen}>
+          <div className="flex items-center text-sm space-x-2 w-full justify-end">
+            <Button className=" h-8" size="sm" onClick={handleOpen}>
               Details
             </Button>
 
@@ -128,12 +124,14 @@ export default function SmallMovieCard({
                 <TooltipTrigger asChild>
                   <Button
                     size="icon"
-                    className="bg-green-500 rounded-full !p-0"
+                    className={cn(" w-8 group h-8 !p-0", {
+                      "bg-green-500": movie.watched,
+                    })}
                     variant="outline"
                     onClick={handleMarkWatch}
                   >
                     {movie.watched ? (
-                      <CheckIcon className="stroke-white h-4 w-4" />
+                      <CheckIcon className="stroke-white group-active:stroke-black h-4 w-4" />
                     ) : (
                       <Popcorn />
                     )}

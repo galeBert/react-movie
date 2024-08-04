@@ -13,12 +13,12 @@ self.addEventListener('install', (event) => {
     );
 });
 self.addEventListener('fetch', (event) => {
-    if (!navigator.onLine) {
-        event.respondWith(
-            caches.match(event.request).then((response) => {
-                return response
-            })
-        );
-    }
+
+    event.respondWith(
+        caches.match(event.request).then((response) => {
+            return response || fetch(event.request);
+        })
+    );
+
 
 });

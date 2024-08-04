@@ -1,9 +1,8 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import SmallMovieCard from "../components/small-movie-card";
 import { Movie, MovieList } from "../types/movie";
-import useSWR, { useSWRConfig } from "swr";
-import { fetcher, fetcherWatchlist } from "../lib/fetcher";
-import useLocalStorage from "../lib/helpers";
+import useSWR from "swr";
+import { fetcherWatchlist } from "../lib/fetcher";
 
 export default function WatchedMovie() {
   const url = "https://api.themoviedb.org/3/account/21022737/watchlist/movies";

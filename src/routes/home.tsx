@@ -49,14 +49,6 @@ export default function Home() {
   const latestMovieData = useMemo(
     () =>
       latestMovies?.results.map((mov) => {
-        console.log(
-          !!watchedList?.results.find((data) => data.id === mov.id),
-          watchedList?.results.map((data) => ({
-            a: data.id,
-            b: mov.id,
-          }))
-        );
-
         return {
           ...mov,
           watched: !!watchedList?.results.find((data) => data.id === mov.id),
@@ -69,7 +61,7 @@ export default function Home() {
       <div className="relative h-96 w-full">
         <Banner list={{ results: popularData ?? [] }} />
       </div>
-      <label>Latest</label>
+      <label className="font-mono text-2xl">Latest</label>
       <div className="flex overflow-x-scroll w-full scrollbar-hide">
         <div className="flex space-x-4">
           {latestMovieData?.map((movie: Movie, index: number) => (
