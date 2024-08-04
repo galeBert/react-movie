@@ -7,14 +7,14 @@ async function addToWatchList(
   }
 ) {
   const { media_id, media_type, watchlist } = arg;
+  const token = process.env.REACT_APP_API_TOKEN;
 
   const response = await fetch(url, {
     method: "POST",
     headers: {
       accept: "application/json",
       "content-type": "application/json",
-      Authorization:
-        "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxYWI2MjhjZDk2N2E0NDU4N2JmMzBmOGU5ODIwMDMxYyIsIm5iZiI6MTcyMjcxODA1OS44NjAyNzUsInN1YiI6IjY1ZDYxNjExZWQyYWMyMDE3YzM1MTNmYyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.QhqiWBUD8-mCND8NkfLp8J3esdZAZUqxbzUWxUSs_-0",
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ media_id, media_type, watchlist }),
   });
@@ -33,14 +33,14 @@ async function addRating(
   }
 ) {
   const { value } = arg;
+  const token = process.env.REACT_APP_API_TOKEN;
 
   const response = await fetch(url, {
     method: "POST",
     headers: {
       accept: "application/json",
       "content-type": "application/json",
-      Authorization:
-        "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxYWI2MjhjZDk2N2E0NDU4N2JmMzBmOGU5ODIwMDMxYyIsIm5iZiI6MTcyMjcxODA1OS44NjAyNzUsInN1YiI6IjY1ZDYxNjExZWQyYWMyMDE3YzM1MTNmYyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.QhqiWBUD8-mCND8NkfLp8J3esdZAZUqxbzUWxUSs_-0",
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ value }),
   });
